@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Manhajuna Aplikasi Al-Qur'an Digital</title>
+    <style>
+        /* Splash Screen Styles */
+        #splashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a5e36 0%, #1e8a5a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .splash-logo {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        .splash-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .splash-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .splash-progress {
+            width: 200px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .splash-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: white;
+            transition: width 0.3s ease;
+        }
+        
+        .splash-verse {
+            color: rgba(255,255,255,0.8);
+            font-style: italic;
+            margin-top: 30px;
+            text-align: center;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .splash-loading-text {
+            color: rgba(255,255,255,0.7);
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen Element -->
+    <div id="splashScreen">
+        <img src="https://ik.imagekit.io/t4ciyzzqg/hitam%20putih%20modern%20huruf%20M%20logo%20(500%20x%20500%20piksel)_20250616_231218_0000.png" alt="Logo Al-Qur'an" class="splash-logo">
+        <h1 class="splash-title">Al-Qur'an Digital</h1>
+        <p class="splash-subtitle">Membaca dan Memahami Kitab Suci</p>
+        
+        <div class="splash-progress">
+            <div class="splash-progress-bar" id="splashProgress"></div>
+        </div>
+        <p class="splash-loading-text" id="splashStatus">Memuat aplikasi...</p>
+        
+        <p class="splash-verse">"Dan sesungguhnya telah Kami mudahkan Al-Qur'an untuk pelajaran, maka adakah orang yang mengambil pelajaran?"<br>(QS. Al-Qamar: 17)</p>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Fungsi untuk update progress splash screen
+        function updateSplashProgress(percent, message) {
+            const progressBar = document.getElementById('splashProgress');
+            const statusText = document.getElementById('splashStatus');
+            
+            progressBar.style.width = percent + '%';
+            if(message) statusText.textContent = message;
+        }
+        
+        // Fungsi untuk memeriksa koneksi internet
+        function checkInternetConnection() {
+            return new Promise((resolve) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('HEAD', 'https://www.google.com/favicon.ico?' + Date.now());
+                xhr.timeout = 3000;
+                
+                xhr.onload = () => {
+                    if(xhr.status >= 200 && xhr.status < 300) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                };
+                
+                xhr.onerror = () => resolve(false);
+                xhr.ontimeout = () => resolve(false);
+                
+                try {
+                    xhr.send();
+                } catch(e) {
+                    resolve(false);
+                }
+            });
+        }
+        
+        // Simulasikan proses loading
+        let progress = 0;
+        const loadingInterval = setInterval(() => {
+            progress += 10;
+            
+            // Update pesan berdasarkan progress
+            let message = "Memuat aplikasi...";
+            if(progress > 30) message = "Menyiapkan Al-Qur'an...";
+            if(progress > 60) message = "Memeriksa koneksi internet...";
+            if(progress > 80) message = "Hampir selesai...";
+            
+            updateSplashProgress(progress, message);
+            
+            if(progress >= 100) {
+                clearInterval(loadingInterval);
+                
+                // Periksa koneksi internet
+                checkInternetConnection().then((isOnline) => {
+                    if(isOnline) {
+                        // Jika online, lanjutkan ke aplikasi
+                        const splash = document.getElementById('splashScreen');
+                        splash.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            splash.remove();
+                            initializeApp();
+                        }, 500);
+                    } else {
+                        // Jika offline, redirect ke halaman no-internet
+                        window.location.href = 'no-internet.html';
+                    }
+                });
+            }
+        }, 300);
+        
+        function initializeApp() {
+            // Kode inisialisasi aplikasi utama
+            console.log("Aplikasi berhasil dimuat");
+            // Di sini Anda bisa memuat aplikasi utama Anda
+        }
+    });
+    </script>
+</body>
+</html>
